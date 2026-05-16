@@ -405,6 +405,10 @@ MIT License
 
 <img src="public/whitedew.jpg" alt="微信二维码" width="240" />
 
+### 微信群二维码
+微信群：白露的 Ai+知识圈 1
+<img src="https://png1.aistar.cool/qr/wechat-group.png" alt="微信群二维码" width="240" />
+
 ### 知识星球，分享最新的使用技巧
 <img src="20260302-141029.jpg" alt="知识星球二维码" width="240" />
 
