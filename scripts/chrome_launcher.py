@@ -140,6 +140,10 @@ def launch_chrome(
         f"--user-data-dir={user_data_dir}",
         "--no-first-run",
         "--no-default-browser-check",
+        "--disable-background-timer-throttling",
+        "--disable-renderer-backgrounding",
+        "--disable-backgrounding-occluded-windows",
+        "--disable-background-media-suspend",
     ]
 
     if headless:

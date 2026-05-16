@@ -2414,6 +2414,14 @@ class XiaohongshuPublisher:
         self._sleep(2, minimum_seconds=1.0)
         self._check_feed_page_accessible()
 
+        comment_loading = self._load_feed_detail_comments(
+            limit=30,
+            click_more_replies=True,
+            reply_limit=10,
+            scroll_speed="normal",
+        )
+        self._sleep(0.6, minimum_seconds=0.2)
+
         target_result = self._activate_reply_target_for_comment(
             comment_id=comment_id,
             comment_author=comment_author,
@@ -2481,20 +2489,21 @@ class XiaohongshuPublisher:
             "feed_id": feed_id,
             "xsec_token": xsec_token,
             "content_length": filled_len,
+            "comment_loading": comment_loading,
             "matched_comment_id": target_result.get("matched_comment_id", ""),
             "matched_author": target_result.get("matched_author", ""),
             "matched_text_preview": target_result.get("matched_text_preview", ""),
             "success": True,
         }
 
-    def _set_note_toggle_state(
+    def _inspect_note_toggle_state(
         self,
         selectors: list[str],
         desired_active: bool,
         active_class_keywords: list[str],
         active_text_keywords: list[str],
     ) -> dict[str, Any]:
-        """Toggle a note action button to desired active/inactive state."""
+        """Inspect a note action button and determine its current state."""
         selectors_literal = json.dumps(selectors, ensure_ascii=False)
         desired_literal = "true" if desired_active else "false"
         class_keywords_literal = json.dumps(active_class_keywords, ensure_ascii=False)
@@ -2561,24 +2570,20 @@ class XiaohongshuPublisher:
                 }
 
                 const target = candidates[0];
-                const before = isActive(target);
-                if (before === desired) {
-                    return {
-                        ok: true,
-                        changed: false,
-                        state_before: before,
-                        state_after: before,
-                    };
-                }
-
-                target.click();
-                await sleep(260);
-                const after = isActive(target);
+                try {
+                    target.scrollIntoView({ behavior: "instant", block: "center", inline: "center" });
+                } catch (error) {}
+                const rect = target.getBoundingClientRect();
                 return {
                     ok: true,
-                    changed: true,
-                    state_before: before,
-                    state_after: after,
+                    desired_state: desired,
+                    state: isActive(target),
+                    rect: {
+                        x: rect.x,
+                        y: rect.y,
+                        width: rect.width,
+                        height: rect.height,
+                    },
                 };
             })()
         """
@@ -2590,11 +2595,70 @@ class XiaohongshuPublisher:
             .replace("__TEXT_KEYWORDS__", text_keywords_literal)
         )
         if not isinstance(result, dict) or not result.get("ok"):
-            reason = "unknown"
-            if isinstance(result, dict):
-                reason = str(result.get("reason", reason))
-            raise CDPError(f"Failed to set note action state: {reason}")
+            return result
         return result
+
+    def _set_note_toggle_state(
+        self,
+        selectors: list[str],
+        desired_active: bool,
+        active_class_keywords: list[str],
+        active_text_keywords: list[str],
+    ) -> dict[str, Any]:
+        """Toggle a note action button to desired active/inactive state."""
+        before_result = self._inspect_note_toggle_state(
+            selectors=selectors,
+            desired_active=desired_active,
+            active_class_keywords=active_class_keywords,
+            active_text_keywords=active_text_keywords,
+        )
+        if not isinstance(before_result, dict) or not before_result.get("ok"):
+            reason = "unknown"
+            if isinstance(before_result, dict):
+                reason = str(before_result.get("reason", reason))
+            raise CDPError(f"Failed to inspect note action state: {reason}")
+
+        state_before = bool(before_result.get("state"))
+        if state_before == desired_active:
+            return {
+                "changed": False,
+                "state_before": state_before,
+                "state_after": state_before,
+                "success": True,
+            }
+
+        rect = before_result.get("rect")
+        if not isinstance(rect, dict):
+            raise CDPError("Failed to inspect note action button position.")
+
+        cx = float(rect["x"]) + float(rect["width"]) / 2
+        cy = float(rect["y"]) + float(rect["height"]) / 2
+        self._move_mouse(cx, cy)
+        self._sleep(0.15, minimum_seconds=0.05)
+        self._click_mouse(cx, cy)
+
+        state_after = state_before
+        for _ in range(5):
+            self._sleep(0.35, minimum_seconds=0.15)
+            after_result = self._inspect_note_toggle_state(
+                selectors=selectors,
+                desired_active=desired_active,
+                active_class_keywords=active_class_keywords,
+                active_text_keywords=active_text_keywords,
+            )
+            if isinstance(after_result, dict) and after_result.get("ok"):
+                state_after = bool(after_result.get("state"))
+                if state_after == desired_active:
+                    break
+
+        changed = state_after != state_before
+        success = state_after == desired_active
+        return {
+            "changed": changed,
+            "state_before": state_before,
+            "state_after": state_after,
+            "success": success,
+        }
 
     def set_note_upvote_state(
         self,
@@ -2638,7 +2702,7 @@ class XiaohongshuPublisher:
             "changed": bool(result.get("changed")),
             "state_before": bool(result.get("state_before")),
             "state_after": bool(result.get("state_after")),
-            "success": True,
+            "success": bool(result.get("success")),
         }
 
     def set_note_bookmark_state(
@@ -2683,7 +2747,7 @@ class XiaohongshuPublisher:
             "changed": bool(result.get("changed")),
             "state_before": bool(result.get("state_before")),
             "state_after": bool(result.get("state_after")),
-            "success": True,
+            "success": bool(result.get("success")),
         }
 
     def _check_feed_page_accessible(self):

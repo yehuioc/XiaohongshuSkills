@@ -3,10 +3,10 @@
 
 
 自动发布内容到小红书（Xiaohongshu/RED）的命令行工具，也支持仅启动测试浏览器（不发布）。
-通过 Chrome DevTools Protocol (CDP) 实现自动化发布，支持多账号管理、无头模式运行、自动搜索素材与内容数据抓取等功能。
+通过 Chrome DevTools Protocol (CDP) 实现自动化发布，支持图文发布、视频发布、多账号管理、无头模式运行、自动搜索素材与内容数据抓取等功能。
 
 ## 功能特性
-- **自动化发布**：自动填写标题、正文、上传图片
+- **自动化发布**：自动填写标题、正文，支持上传图片或视频
 - **创作者中心兼容修复**：适配 2026 年 2-3 月发布页 DOM 变动（发布按钮、定时开关、日期输入、多图上传等待、正文编辑器）
 - **话题标签自动写入**：识别正文最后一行 `#标签`，然后逐渐写入
 - **多账号支持**：支持管理多个小红书账号，各账号 Cookie 隔离
@@ -123,6 +123,18 @@ python scripts/publish_pipeline.py --headless \
     --content "文章正文" \
     --images "C:\path\to\image.jpg"
 
+# 使用本地视频
+python scripts/publish_pipeline.py --headless \
+    --title "视频标题" \
+    --content "视频正文" \
+    --video "C:\path\to\video.mp4"
+
+# 使用视频 URL
+python scripts/publish_pipeline.py --headless \
+    --title "视频标题" \
+    --content "视频正文" \
+    --video-url "https://example.com/video.mp4"
+
 # WSL/远程 CDP + Windows/UNC 路径可跳过本地文件预校验
 python scripts/publish_pipeline.py --headless \
     --title "文章标题" \
@@ -210,6 +222,7 @@ python scripts/cdp_publish.py get-notification-mentions
 ```
 
 说明：`list-feeds` 返回首页推荐 feed 列表；`search-feeds` 会先在搜索框输入关键词，抓取下拉推荐词（`recommended_keywords`），再回车拉取 feed 列表。
+说明：`search-feeds` 当前返回的是页面上可提取到的结果集合；如果调用方只需要前 N 条，可以自行截断结果。当前没有单独的 `--limit` 参数用于控制搜索结果条数。
 说明：`get-feed-detail --load-all-comments` 会在详情页滚动评论区，并可选点击“更多回复”后再提取 `window.__INITIAL_STATE__`。
 
 ### 6. 获取内容数据表（content_data）
@@ -248,6 +261,8 @@ python scripts/publish_pipeline.py [选项]
   --content-file FILE    从文件读取正文
   --image-urls URL...    图片 URL 列表
   --images FILE...       本地图片文件列表
+  --video FILE           本地视频文件
+  --video-url URL        视频 URL（先下载再上传）
   --skip-file-check      跳过本地媒体文件存在性检查（WSL/远程 CDP/UNC 路径可用）
   --preserve-upload-paths 强制保留原始上传路径，不将反斜杠转换为正斜杠
   --host HOST            CDP 主机地址（默认 127.0.0.1）
@@ -336,6 +351,7 @@ python scripts/cdp_publish.py switch-account
 说明：登录态检查默认启用本地缓存（12 小时，仅缓存“已登录”结果），到期后自动重新走网页校验。
 说明：`get-login-qrcode` 返回 `qrcode_base64` / `qrcode_data_url`，便于远程前端直接展示扫码。
 说明：`search-feeds` 输出新增 `recommended_keywords_count` 与 `recommended_keywords` 字段，表示输入关键词后回车前的下拉推荐词。
+说明：`search-feeds` 返回当前页面可提取到的结果，不提供单独的 `--limit` 条数控制；若只需前 N 条，请在调用方截断返回列表。
 说明：`get-feed-detail --load-all-comments` 额外返回 `comment_loading`，用于说明评论滚动加载结果。
 说明：`content-data` 会校验创作者中心登录态，并抓取 `statistics/data-analysis` 页面中的笔记基础信息表。
 
