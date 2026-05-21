@@ -411,7 +411,7 @@ MIT License
 
 ## 中转推荐
 
-如需了解常用中转方案，当前可用中转：https://code.aistar.cool，如需更多信息可联系作者微信。
+如需了解常用中转方案，当前可用中转：https://code.aistar.cool
 
 - 1:1 美元充值
 - 0.25 倍率消耗
