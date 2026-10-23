@@ -90,11 +90,9 @@ def get_user_data_dir(account: Optional[str] = None) -> str:
         from account_manager import get_profile_dir
         return get_profile_dir(account)
     except ImportError:
-        # Fallback if account_manager not available
-        local_app_data = os.environ.get("LOCALAPPDATA", "")
-        if not local_app_data:
-            local_app_data = os.path.expanduser("~")
-        return os.path.join(local_app_data, "Google", "Chrome", PROFILE_DIR_NAME)
+        # Fallback if account_manager not available: use project data dir
+        _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(_project_root, "data", "chrome-profiles", PROFILE_DIR_NAME)
 
 
 def is_port_open(port: int, host: str = "127.0.0.1") -> bool:

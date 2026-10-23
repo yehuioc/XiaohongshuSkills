@@ -17,7 +17,7 @@ from urllib.parse import urlencode
 SEARCH_BASE_URL = "https://www.xiaohongshu.com/search_result"
 FEED_DETAIL_URL_TEMPLATE = (
     "https://www.xiaohongshu.com/explore/{feed_id}"
-    "?xsec_token={xsec_token}&xsec_source=pc_feed"
+    "?xsec_token={xsec_token}&xsec_source=pc_search"
 )
 
 

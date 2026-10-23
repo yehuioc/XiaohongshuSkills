@@ -107,6 +107,43 @@ XHS_CONTENT_DATA_URL = "https://creator.xiaohongshu.com/statistics/data-analysis
 XHS_CONTENT_DATA_API_PATH = "/api/galaxy/creator/datacenter/note/analyze/list"
 XHS_NOTIFICATION_MENTIONS_API_PATH = "/api/sns/web/v1/you/mentions"
 XHS_SEARCH_RECOMMEND_API_PATH = "/api/sns/web/v1/search/recommend"
+# ---------------------------------------------------------------------------
+# Project-local data directory for search/feed raw output persistence
+# ---------------------------------------------------------------------------
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.dirname(_SCRIPT_DIR)
+_DATA_SEARCHES_DIR = os.path.join(_PROJECT_ROOT, "data", "searches")
+
+
+def _ensure_data_searches_dir() -> str:
+    os.makedirs(_DATA_SEARCHES_DIR, exist_ok=True)
+    return _DATA_SEARCHES_DIR
+
+
+def _save_raw_json(
+    label: str,
+    payload: dict[str, Any],
+    output_dir: str | None = None,
+) -> str:
+    """Save a JSON payload to the project data/searches directory.
+
+    Returns the absolute path of the saved file.
+    """
+    target_dir = output_dir or _ensure_data_searches_dir()
+    safe_label = "".join(
+        ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in label
+    )
+    # Use local time directly, no IANA tzdata dependency
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    filename = f"{timestamp}_{safe_label}.json"
+    filepath = os.path.join(target_dir, filename)
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    print(f"[cdp_publish] Raw data saved to: {filepath}")
+    return filepath
+
+
 XHS_FEED_INACCESSIBLE_KEYWORDS = (
     "当前笔记暂时无法浏览",
     "该内容因违规已被删除",
@@ -2788,7 +2825,9 @@ class XiaohongshuPublisher:
                         return kw;
                     }}
                 }}
-                return fullText.slice(0, 180);
+                // Only return text if it matches a known inaccessibility keyword.
+                // Random text in wrappers is not an error.
+                return "";
             }})()
         """)
         if isinstance(issue, str) and issue.strip():
@@ -4211,6 +4250,11 @@ def main():
         aliases=["list_feeds"],
         help="Get home recommendation feeds",
     )
+    p_list_feeds.add_argument(
+        "--save-raw",
+        action="store_true",
+        help="Save raw JSON result to data/searches/ inside the project",
+    )
 
     # search-feeds - search note feeds by keyword
     p_search = sub.add_parser(
@@ -4232,6 +4276,11 @@ def main():
         help="Search scope filter",
     )
     p_search.add_argument("--location", choices=LOCATION_OPTIONS, help="Location filter")
+    p_search.add_argument(
+        "--save-raw",
+        action="store_true",
+        help="Save raw JSON result to data/searches/ inside the project",
+    )
 
     # get-feed-detail - get note detail by feed id and token
     p_detail = sub.add_parser(
@@ -4572,6 +4621,8 @@ def main():
             payload = publisher.list_feeds()
             print("LIST_FEEDS_RESULT:")
             print(json.dumps(payload, ensure_ascii=False, indent=2))
+            if getattr(args, "save_raw", False):
+                _save_raw_json("list-feeds", payload)
 
         elif args.command in ("search-feeds", "search_feeds"):
             publisher.connect(reuse_existing_tab=reuse_existing_tab)
@@ -4592,6 +4643,8 @@ def main():
             }
             print("SEARCH_FEEDS_RESULT:")
             print(json.dumps(payload, ensure_ascii=False, indent=2))
+            if getattr(args, "save_raw", False):
+                _save_raw_json(f"search_{args.keyword}", payload)
 
         elif args.command in ("get-feed-detail", "get_feed_detail"):
             publisher.connect(reuse_existing_tab=reuse_existing_tab)

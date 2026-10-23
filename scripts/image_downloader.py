@@ -17,6 +17,13 @@ import requests
 DEFAULT_TIMEOUT = 30  # seconds per download
 TEMP_DIR_PREFIX = "xhs_images_"
 
+# Default temp dir inside the project, not on C drive
+def _default_temp_dir() -> str:
+    _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    _dir = os.path.join(_project_root, "data", "temp-images")
+    os.makedirs(_dir, exist_ok=True)
+    return tempfile.mkdtemp(prefix=TEMP_DIR_PREFIX, dir=_dir)
+
 
 class ImageDownloader:
     """Download images from URLs and manage a temporary directory for them."""
@@ -27,7 +34,7 @@ class ImageDownloader:
             os.makedirs(self.temp_dir, exist_ok=True)
             self._owns_dir = False
         else:
-            self.temp_dir = tempfile.mkdtemp(prefix=TEMP_DIR_PREFIX)
+            self.temp_dir = _default_temp_dir()
             self._owns_dir = True
         self.downloaded_files: list[str] = []
 

@@ -45,6 +45,18 @@ content.txt
 # Config with sensitive data
 config/accounts.json
 
+# Local runtime data (Chrome profiles, temp downloads, locks)
+data/
+
+# A-class skills (independent git repos, managed separately)
+skills/
+
+# Research output packs (large, not tracked)
+research/
+
+# Fixed upstream text snapshots for architecture research, never production modules
+references/upstream/
+
 # Images
 images/publish_temp/*
 !images/publish_temp/.gitkeep
@@ -52,3 +64,18 @@ images/publish_temp/*
 # OS
 .DS_Store
 Thumbs.db
+
+# Private local evidence, imported data and packages (never source releases)
+state/
+*.rar
+*.zip
+*.7z
+*.sqlite*
+*.db
+.env
+.env.*
+!.env.example
+BUGS.md
+docs/creator-platform-research.md
+references/
+public/whitedew.jpg

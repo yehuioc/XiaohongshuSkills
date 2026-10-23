@@ -1,0 +1,10 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>小红书研究侧栏</title><link rel="stylesheet" href="panel.css">
+<body><h1>小红书研究</h1><p>在你的 Chrome 页面逐篇阅读，把材料整理到本地工作台。</p>
+<label>工作台配对码<input id="code" autocomplete="off" placeholder="在工作台 · 浏览器连接中生成"></label><button id="pair">连接本机工作台</button>
+<hr><h2>控制哪一页？</h2><button id="bind">绑定我当前看到的小红书页</button><p id="binding">尚未绑定。工作台所在的内置浏览器不会被控制。</p>
+<button id="focus" disabled>定位已绑定的 Chrome 页面</button><button id="open-editor" disabled>在这页打开图文编辑器（不发布）</button>
+<label class="switch"><input id="control" type="checkbox" disabled>允许 AI 操作这个标签页（未绑定时先点上方按钮）</label><button id="stop" class="stop">立即停止 / 交还给我</button>
+<p class="muted">开启接管后，切换标签页、最小化 Chrome 或关闭侧栏均可继续。点“立即停止”或工作台停止按钮才交还控制。关闭 Chrome、休眠、账号变化或平台提示时暂停。绑定不会读取其他网站或 Cookie。</p>
+<button id="capture">收集当前打开的笔记</button><button id="list">查看当前卡片列表</button><div id="cards"></div>
+<p id="version" class="muted"></p><p id="status" role="status">尚未连接</p><a href="http://127.0.0.1:8914/" target="_blank">打开本地工作台 ↗</a>
+<script src="panel.js"></script></body></html>

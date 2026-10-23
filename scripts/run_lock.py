@@ -17,8 +17,11 @@ class SingleInstanceError(RuntimeError):
 
 
 def _lock_path(lock_name: str) -> str:
+    _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    _lock_dir = os.path.join(_project_root, "data")
+    os.makedirs(_lock_dir, exist_ok=True)
     safe_name = "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in lock_name)
-    return os.path.join(tempfile.gettempdir(), f"{safe_name}.lock")
+    return os.path.join(_lock_dir, f"{safe_name}.lock")
 
 
 def _pid_running(pid: int) -> bool:

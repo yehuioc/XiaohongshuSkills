@@ -1,0 +1,63 @@
+{
+  "bundle_name": "xhs-a-class-skills-full-source-bundle",
+  "purpose": "Download and organize the A-class open-source repositories for a general Xiaohongshu/RedNote content factory. This config keeps repositories independent and does not merge, rewrite, or compress their internal structure.",
+  "generated_at": "2026-06-16",
+  "repositories": [
+    {
+      "id": "platform-control",
+      "priority": "A1",
+      "repo": "white0dew/XiaohongshuSkills",
+      "url": "https://github.com/white0dew/XiaohongshuSkills.git",
+      "folder": "01-platform-control__white0dew__XiaohongshuSkills",
+      "role": "Xiaohongshu platform automation: search notes, inspect note details, prepare/publish image or video notes, account/browser operations, comments/interactions, and data export. It should be used as the platform execution layer, not as the copywriter or visual designer."
+    },
+    {
+      "id": "research-engine",
+      "priority": "A2",
+      "repo": "Weizhena/Deep-Research-skills",
+      "url": "https://github.com/Weizhena/Deep-Research-skills.git",
+      "folder": "02-research-engine__Weizhena__Deep-Research-skills",
+      "role": "Deep research workflow: scope research questions, collect evidence, build outlines, synthesize source-grounded research reports, and prepare content evidence cards before writing."
+    },
+    {
+      "id": "topic-diagnosis",
+      "priority": "A3",
+      "repo": "dontbesilent2025/dbskill",
+      "url": "https://github.com/dontbesilent2025/dbskill.git",
+      "folder": "03-topic-diagnosis__dontbesilent2025__dbskill",
+      "role": "Topic, hook, commercial expression, Xiaohongshu title, and AI-trace diagnosis. It should judge whether a topic has click motivation, user benefit, save/share value, and platform fit before production."
+    },
+    {
+      "id": "humanizer",
+      "priority": "A4",
+      "repo": "op7418/Humanizer-zh",
+      "url": "https://github.com/op7418/Humanizer-zh.git",
+      "folder": "04-humanizer__op7418__Humanizer-zh",
+      "role": "Chinese humanization and anti-AI-tone editing: remove empty phrases, template structure, over-smooth AI writing, over-formal rhetoric, and make text sound like a concrete person in a concrete situation."
+    },
+    {
+      "id": "social-card-renderer",
+      "priority": "A5",
+      "repo": "op7418/guizang-social-card-skill",
+      "url": "https://github.com/op7418/guizang-social-card-skill.git",
+      "folder": "05-social-card-renderer__op7418__guizang-social-card-skill",
+      "role": "Primary Xiaohongshu image-card and carousel renderer: convert copy and structure into vertical cards, covers, social cards, HTML, and PNG outputs. It owns layout, not research or platform publishing."
+    },
+    {
+      "id": "image-prompt-library",
+      "priority": "A6",
+      "repo": "freestylefly/awesome-gpt-image-2",
+      "url": "https://github.com/freestylefly/awesome-gpt-image-2.git",
+      "folder": "06-image-prompt-library__freestylefly__awesome-gpt-image-2",
+      "role": "Image-generation prompt library and visual-direction reference: covers, scenes, posters, infographics, illustrations, realism, atmosphere, and repeatable prompt templates. It should guide image prompts, not page layout."
+    },
+    {
+      "id": "visual-toolbox",
+      "priority": "A7",
+      "repo": "JimLiu/baoyu-skills",
+      "url": "https://github.com/JimLiu/baoyu-skills.git",
+      "folder": "07-visual-toolbox__JimLiu__baoyu-skills",
+      "role": "General Chinese creator visual toolbox: cover images, diagrams, infographics, visual packaging, and additional reusable visual skills. It supplements the primary social-card renderer."
+    }
+  ]
+}

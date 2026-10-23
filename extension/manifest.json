@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "小红书研究工作台",
+  "version": "0.2.7",
+  "description": "将指定小红书标签页中的逐篇阅读接入本地工作台，支持用户主动开启 AI 接管。",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "sidePanel",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://www.xiaohongshu.com/*",
+    "https://creator.xiaohongshu.com/*",
+    "https://*.xhscdn.com/*",
+    "http://127.0.0.1:8914/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "打开小红书研究侧栏"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'"
+  }
+}

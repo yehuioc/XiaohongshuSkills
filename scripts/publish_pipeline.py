@@ -5,7 +5,7 @@ Single CLI entry point that orchestrates:
   chrome_launcher → login check → image/video download → form fill → publish (default)
 
 Usage:
-    # Publish immediately after filling (default behavior)
+    # Fill preview by default; publish only after explicit per-post confirmation
     python publish_pipeline.py --title "标题" --content "正文" --image-urls URL1 URL2
     python publish_pipeline.py --title-file t.txt --content-file body.txt --image-urls URL1
 
@@ -39,7 +39,7 @@ Usage:
     python publish_pipeline.py --title "标题" --content "正文" --video-url "https://example.com/video.mp4"
 
 Exit codes:
-    0 = success (PUBLISHED, or READY_TO_PUBLISH in preview mode)
+    0 = completed fill or submitted publish request; visibility requires readback
     1 = not logged in (NOT_LOGGED_IN) - headless auto-fallback will restart headed
     2 = error (see stderr)
 """
@@ -347,8 +347,7 @@ def main():
         action="store_true",
         default=False,
         help=(
-            "Compatibility flag. Publish is now the default behavior unless "
-            "--preview is enabled."
+            "Explicitly publish this reviewed post. Without this flag the pipeline only fills a preview."
         ),
     )
 
@@ -593,17 +592,15 @@ def main():
         sys.exit(2)
 
     # --- Step 5: Publish (optional) ---
-    should_publish = not args.preview
-    if args.auto_publish:
-        print("[pipeline] --auto-publish is now default and can be omitted.")
-    if args.preview:
+    should_publish = args.auto_publish and not args.preview
+    if not should_publish:
         print("[pipeline] Preview mode is on, skipping publish click.")
 
     if should_publish:
         print("[pipeline] Step 5: Clicking publish button...")
         try:
             note_link = publisher._click_publish(post_time != None)
-            print("PUBLISH_STATUS: PUBLISHED")
+            print("PUBLISH_STATUS: SUBMITTED_UNVERIFIED")
             if note_link:
                 print(f"[pipeline] Note published at: {note_link}")
         except CDPError as e:
